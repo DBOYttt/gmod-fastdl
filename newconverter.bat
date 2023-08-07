@@ -1,28 +1,28 @@
 @echo off
+setlocal enabledelayedexpansion
 
-rem Sprawdzenie, czy 7-Zip jest zainstalowany
-set "Szip_path=%ProgramFiles%\7-Zip\7z.exe"
-if not exist "%Szip_path%" (
-    echo 7-Zip nie został znaleziony. Upewnij się, że jest zainstalowany.
-    pause
-    exit /b
-)
+rem Określ ścieżkę do katalogu skryptu
+set "scriptDir=%~dp0"
 
-rem Sprawdzenie, czy został przeciągnięty plik
-if "%~1"=="" (
-    echo Aby skompresować plik, przeciągnij go na ten plik wsadowy (.bat).
-    pause
-    exit /b
-)
+rem Utwórz plik tekstowy z danymi zgodnie z formułą
+(
+    echo if (SERVER^) then
+    echo   -- EXAMPLE
+    rem Pętla przetwarzająca przeciągnięte foldery/pliki
+    for %%I in (%*) do (
+        rem Sprawdzamy, czy przeciągnięty element to plik
+        if exist "%%~I" (
+            rem Pobieramy nazwę pliku (bez ścieżki i rozszerzenia)
+            set "fileName=%%~nxI"
+            rem Dodajemy wpis do pliku tekstowego dla nieskompresowanego pliku
+            echo   resource.AddFile("%%~I") -- Uncompressed >> "%scriptDir%resources.txt"
+            rem Dodajemy wpis do pliku tekstowego dla skompresowanego pliku (o ile jeszcze nie jest skompresowany)
+            echo   resource.AddFile("%%~dpnI.bz2") -- Compressed ( smaller filesize ) >> "%scriptDir%resources.txt"
+        )
+    )
+    echo end
+) > "%scriptDir%resources.txt"
 
-rem Ustawienie katalogu docelowego jako folder źródłowy pliku
-set "destination_directory=%~dp1"
-
-rem Upewnij się, że katalog docelowy istnieje
-if not exist "%destination_directory%" mkdir "%destination_directory%"
-
-rem Konwersja przeciągniętego pliku na .bz2
-"%Szip_path%" a -t7z -mx=9 "%destination_directory%%~n1.7z" "%~1"
-
-echo Konwersja zakończona pomyślnie.
+echo Plik tekstowy "resources.txt" został utworzony w katalogu skryptu .bat.
 pause
+

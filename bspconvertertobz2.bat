@@ -9,10 +9,10 @@ if "%~1" == "" (
 )
 
 rem Ścieżka do programu 7-Zip
-set "7zPath=C:\Program Files\7-Zip\7z.exe"
+set "SzPath=C:\Program Files\7-Zip\7z.exe"
 
 rem Sprawdzamy, czy 7-Zip istnieje w podanej ścieżce
-if not exist "%7zPath%" (
+if not exist "%SzPath%" (
     echo Nie znaleziono 7-Zip w podanej ścieżce.
     pause
     exit /b
@@ -37,7 +37,7 @@ if exist "%~1\" (
         set "fileName=%%~nxF"
     )
     rem Kompresujemy plik do pliku .bz2
-    "%7zPath%" a -t7z "%parentDir%!fileName!.bz2" "%~1"
+    "%SzPath%" a -t7z "%parentDir%!fileName!.bz2" "%~1"
 )
 
 shift

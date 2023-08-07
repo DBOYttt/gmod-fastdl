@@ -1,9 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
-rem Sprawdzamy, czy przeciągnięto foldery na skrypt .bat
+rem Sprawdzamy, czy przeciągnięto foldery/pliki na skrypt .bat
 if "%~1" == "" (
-    echo Przeciągnij folder na ten skrypt, aby konwertować pliki wewnątrz folderów.
+    echo Przeciągnij foldery/pliki na ten skrypt, aby je skompresować do .bz2.
     pause
     exit /b
 )
@@ -18,30 +18,36 @@ if not exist "%SzPath%" (
     exit /b
 )
 
-rem Pętla przetwarzająca przeciągnięte foldery
-:process_folder
+rem Pętla przetwarzająca przeciągnięte foldery/pliki
+:process_item
 if "%~1" == "" (
     goto :eof
 )
 
 rem Sprawdzamy, czy przeciągnięty element to folder
 if exist "%~1\" (
-    rem Przechodzimy do podfolderu i wywołujemy skrypt rekurencyjnie
+    rem Jeśli przeciągnięty element to folder, wywołujemy skrypt rekurencyjnie dla jego zawartości
     pushd "%~1"
-    call :process_folder *
+    call :process_folder
     popd
 ) else (
-    rem Pobieramy ścieżkę do katalogu nadrzędnego i nazwę pliku (bez rozszerzenia)
-    for %%F in ("%~1\..") do (
-        set "parentDir=%%~dpF"
-        set "fileName=%%~nxF"
-    )
-    rem Kompresujemy plik do pliku .bz2
-    "%SzPath%" a -t7z "%parentDir%!fileName!.bz2" "%~1"
+    rem Jeśli przeciągnięty element to plik, kompresujemy go do pliku .bz2
+    "%SzPath%" a -t7z "%~1.bz2" "%~1"
 )
 
 shift
-goto process_folder
+goto process_item
+
+:process_folder
+rem Pętla przetwarzająca pliki w folderze
+for %%F in (*) do (
+    rem Jeśli element w folderze to plik, kompresujemy go do pliku .bz2
+    if exist "%%F" (
+        "%SzPath%" a -t7z "%%F.bz2" "%%F"
+    )
+)
+
+goto :eof
 
 echo Konwersja zakończona.
 pause

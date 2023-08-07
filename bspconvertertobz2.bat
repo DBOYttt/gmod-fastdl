@@ -47,6 +47,13 @@ for %%F in (*) do (
     )
 )
 
+rem Wywołujemy skrypt rekurencyjnie dla podfolderów
+for /d %%D in (*) do (
+    pushd "%%D"
+    call :process_folder
+    popd
+)
+
 goto :eof
 
 echo Konwersja zakończona.

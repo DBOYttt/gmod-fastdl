@@ -1,11 +1,47 @@
 @echo off
-set "export_folder=%USERPROFILE%\Desktop\exports"
-mkdir "%export_folder%"
+setlocal enabledelayedexpansion
 
-for /d %%i in (*) do (
-    echo Compressing folder: %%i
-    "C:\Program Files\7-Zip\7z.exe" a -tbzip2 "%export_folder%\%%i.bz2" "%%i\*"
+rem Sprawdzamy, czy przeciągnięto foldery na skrypt .bat
+if "%~1" == "" (
+    echo Przeciągnij folder na ten skrypt, aby konwertować pliki wewnątrz folderów.
+    pause
+    exit /b
 )
 
-echo Compression complete! Exported files to the "%export_folder%" folder.
+rem Ścieżka do programu 7-Zip
+set "7zPath=C:\Program Files\7-Zip\7z.exe"
+
+rem Sprawdzamy, czy 7-Zip istnieje w podanej ścieżce
+if not exist "%7zPath%" (
+    echo Nie znaleziono 7-Zip w podanej ścieżce.
+    pause
+    exit /b
+)
+
+rem Pętla przetwarzająca przeciągnięte foldery
+:process_folder
+if "%~1" == "" (
+    goto :eof
+)
+
+rem Sprawdzamy, czy przeciągnięty element to folder
+if exist "%~1\" (
+    rem Przechodzimy do podfolderu i wywołujemy skrypt rekurencyjnie
+    pushd "%~1"
+    call :process_folder *
+    popd
+) else (
+    rem Pobieramy ścieżkę do katalogu nadrzędnego i nazwę pliku (bez rozszerzenia)
+    for %%F in ("%~1\..") do (
+        set "parentDir=%%~dpF"
+        set "fileName=%%~nxF"
+    )
+    rem Kompresujemy plik do pliku .bz2
+    "%7zPath%" a -t7z "%parentDir%!fileName!.bz2" "%~1"
+)
+
+shift
+goto process_folder
+
+echo Konwersja zakończona.
 pause

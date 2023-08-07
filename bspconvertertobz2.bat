@@ -33,6 +33,8 @@ if exist "%~1\" (
 ) else (
     rem Jeśli przeciągnięty element to plik, kompresujemy go do pliku .bz2
     "%SzPath%" a -t7z "%~1.bz2" "%~1"
+    rem Usuwamy nieskompresowany plik
+    del "%~1"
 )
 
 shift
@@ -44,6 +46,8 @@ for %%F in (*) do (
     rem Jeśli element w folderze to plik, kompresujemy go do pliku .bz2
     if exist "%%F" (
         "%SzPath%" a -t7z "%%F.bz2" "%%F"
+        rem Usuwamy nieskompresowany plik
+        del "%%F"
     )
 )
 

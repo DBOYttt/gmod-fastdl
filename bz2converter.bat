@@ -1,40 +1,39 @@
 @echo off
 setlocal enabledelayedexpansion
 
-rem Sprawdzamy, czy przeciągnięto foldery na skrypt .bat
+rem Check if folders were dragged onto the .bat script
 if "%~1" == "" (
-    echo Przeciągnij folder na ten skrypt, aby go skompresować.
+    echo Drag a folder onto this script to compress it.
     pause
     exit /b
 )
 
-rem Ścieżka do programu 7-Zip
+rem Path to the 7-Zip program
 set "SzPath=C:\Program Files\7-Zip\7z.exe"
 
-rem Sprawdzamy, czy 7-Zip istnieje w podanej ścieżce
+rem Check if 7-Zip exists at the specified path
 if not exist "%SzPath%" (
-    echo Nie znaleziono 7-Zip w podanej ścieżce.
+    echo 7-Zip was not found at the specified path.
     pause
     exit /b
 )
 
-rem Pętla przetwarzająca przeciągnięte foldery
+rem Loop to process dragged folders
 :process_folder
 if "%~1" == "" (
     goto :eof
 )
 
-rem Sprawdzamy, czy przeciągnięty element to folder
+rem Check if the dragged item is a folder
 if exist "%~1\" (
-    rem Pobieramy nazwę folderu (bez ścieżki) dla nazwy pliku .bz2
+    rem Get the folder name (without path) for the .bz2 file name
     set "folderName=%~nx1"
-    rem Kompresujemy folder do pliku .bz2
+    rem Compress the folder into a .bz2 file
     "%SzPath%" a -t7z "%~dp1\!folderName!.bz2" "%~1\*"
 )
 
 shift
 goto process_folder
 
-echo Konwersja zakończona.
+echo Conversion completed.
 pause
-
